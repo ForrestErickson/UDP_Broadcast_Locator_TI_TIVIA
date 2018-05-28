@@ -33,32 +33,6 @@ UDP udp;  // the UDP object
  * init the frame and the UDP object.
  */
  
- 
-//  void myCustomReceiveHandler(byte[] message, String ip, int port
-//void myCustomReceiveHandler( byte[] data, MY_IP_ADDRESS,UDP_PORT ) {
-  void myCustomReceiveHandler( byte[] data, String ip, int port ) {
-//  String theAddress = udp.address ( );
-  println("The address " + ip + " and port: " + port);
-  print("myReceived data: ");
-
-// Write to the drawing window
-  textSize(32);
-  text("Got:  ", 0,20);
-//  for (int i =0; i< 255; i++){
-  for (int i =0; i< data.length ; i++){
-    text(hex(data[i]), i*32,41);
-    print(hex(data[i]));
-  }
-  println(" ");
-    
-  byte mydata[] = data;
-  int mydatalength = udp.getBuffer();
-  println("Data buffer length: " + mydatalength);
-
-} //  myCustomReceiveHandler(byte[] message, String ip, int port) 
- 
-
- 
 void setup() {
 // Setup Broadcast by setting up multicast????
   size( 255, 255 );
@@ -140,4 +114,28 @@ void receive( byte[] data ) {
 } // received
 */
 
+ 
+//  void myCustomReceiveHandler(byte[] message, String ip, int port
+//void myCustomReceiveHandler( byte[] data, MY_IP_ADDRESS,UDP_PORT ) {
+  void myCustomReceiveHandler( byte[] data, String ip, int port ) {
+//  String theAddress = udp.address ( );
+  println("The address " + ip + " and port: " + port);
+  print("myReceived data: ");
+
+// Write to the drawing window
+  textSize(32);
+  text("Got:  ", 0,20);
+//  for (int i =0; i< 255; i++){
+  for (int i =0; i< data.length ; i++){
+    text(hex(data[i]), i*32,41);
+    print(hex(data[i]));
+  }
+  println(" ");
+    
+  byte mydata[] = data;
+  int mydatalength = udp.getBuffer();
+  println("Data buffer length: " + mydatalength);
+
+} //  myCustomReceiveHandler(byte[] message, String ip, int port) 
+ 
 
