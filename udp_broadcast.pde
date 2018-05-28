@@ -66,7 +66,7 @@ void setup() {
   // i.e. the local network. Transmission to this address is limited by definition, in that it is never forwarded
   // by the routers connecting the local network to other networks.
   
-  udp = new UDP( this, 23, MULTICAST_IP_ADDRESS );
+  udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.broadcast(true);
 
   // Setup listen and wait constantly for incomming data
