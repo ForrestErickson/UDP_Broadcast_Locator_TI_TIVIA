@@ -60,7 +60,7 @@ void setup() {
   background( 128 );  // gray backround
 
 // We can't seam to make a broadcast connection so we will setup a multicast.   
-// create a broadcast connection on port 23
+// create a broadcast connection on port 23 = UDP_PORT
   //From Wikipedia: A special definition exists for the IP broadcast address 255.255.255.255. 
   //It is the broadcast address of the zero network or 0.0.0.0, which in Internet Protocol standards stands for this network,
   // i.e. the local network. Transmission to this address is limited by definition, in that it is never forwarded
@@ -100,9 +100,30 @@ void mouseMoved() {
   data[1] = byte(mouseY);
   data[2] = byte(pmouseX);
   data[3] = byte(pmouseY);
-//  udp.send( data, BROADCAST_IP_ADDRESS, 23  ); // = send( data, group_ip, port );
+//  udp.send( data, BROADCAST_IP_ADDRESS, UDP_PORT  ); // = send( data, group_ip, port );
 } // mouseMoved
 
+/**
+ * on mouse click : 
+ * send the TI UDP data on mouse click.
+ */
+ 
+void mouseClicked() {
+  println ("Moused clicked");
+
+ // Tivia Locator UDP string creation.
+ // This works with the full Launchpad conditional test   
+  byte[] bdata = new byte[4];
+  bdata[0] = TAG_CMD;
+  bdata[1] = byte(0x04);
+  bdata[2] = CMD_DISCOVER_TARGET;
+  bdata[3] = byte(TAG_CHECK_BYTE);
+
+  //String sLocator
+  String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
+  println( "Sending TI Locator Broadcast" );
+  udp.send( bdata, BROADCAST_IP_ADDRESS, UDP_PORT ); // = send( data, group_ip, port );
+} // mouseClicked
 
 /**
  * This is the program receive handler. To perform any action on datagram 
@@ -146,27 +167,5 @@ String myString ="";
   line( x, y, px, py );
 } // received
 
-
-/**
- * on mouse click : 
- * send the TI UDP data on mouse click.
- */
- 
-void mouseClicked() {
-  println ("Moused clicked");
-
- // Tivia Locator UDP string creation.
- // This works with the full Launchpad conditional test   
-  byte[] bdata = new byte[4];
-  bdata[0] = TAG_CMD;
-  bdata[1] = byte(0x04);
-  bdata[2] = CMD_DISCOVER_TARGET;
-  bdata[3] = byte(TAG_CHECK_BYTE);
-
-  //String sLocator
-  String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
-  println( "Sending TI Locator Broadcast" );
-  udp.send( bdata, BROADCAST_IP_ADDRESS, 23 ); // = send( data, group_ip, port );
-}
 
 
