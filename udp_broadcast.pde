@@ -32,6 +32,33 @@ UDP udp;  // the UDP object
 /**
  * init the frame and the UDP object.
  */
+ 
+ 
+//  void myCustomReceiveHandler(byte[] message, String ip, int port
+//void myCustomReceiveHandler( byte[] data, MY_IP_ADDRESS,UDP_PORT ) {
+  void myCustomReceiveHandler( byte[] data, String ip, int port ) {
+//  String theAddress = udp.address ( );
+  println("The address " + ip + " and port: " + port);
+  print("myReceived data: ");
+
+// Write to the drawing window
+  textSize(32);
+  text("Got:  ", 0,20);
+//  for (int i =0; i< 255; i++){
+  for (int i =0; i< data.length ; i++){
+    text(hex(data[i]), i*32,41);
+    print(hex(data[i]));
+  }
+  println(" ");
+    
+  byte mydata[] = data;
+  int mydatalength = udp.getBuffer();
+  println("Data buffer length: " + mydatalength);
+
+} //  myCustomReceiveHandler(byte[] message, String ip, int port) 
+ 
+
+ 
 void setup() {
 // Setup Broadcast by setting up multicast????
   size( 255, 255 );
@@ -40,6 +67,9 @@ void setup() {
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.loopback(false);  // Suppress our own broadcast.
   udp.log(true);  //Wonder what?
+
+//  udp.setReceiveHandler(this.myCustomReceiveHandler);
+  udp.setReceiveHandler("myCustomReceiveHandler");
 
   // Setup listen and wait constantly for incomming data
   udp.listen( true );
@@ -69,7 +99,7 @@ void mouseClicked() {
 
  // Tivia Locator UDP string creation.
  // This works with the full Launchpad conditional test   
-  byte[] bdata = new byte[255];
+  byte[] bdata = new byte[4];
   bdata[0] = TAG_CMD;
   bdata[1] = byte(0x04);
   bdata[2] = CMD_DISCOVER_TARGET;
@@ -87,6 +117,8 @@ void mouseClicked() {
  * automatically called by the UDP object each time he receive a nonnull 
  * message.
  */
+
+/* 
 void receive( byte[] data ) {
 //  String theAddress = udp.address ( );
 //  println("The address" + theAddress);
@@ -106,6 +138,6 @@ void receive( byte[] data ) {
   println("Data buffer length: " + mydatalength);
 
 } // received
-
+*/
 
 
