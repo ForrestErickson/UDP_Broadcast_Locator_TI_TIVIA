@@ -20,6 +20,8 @@ byte TAG_CHECK_BYTE = byte((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff);
 // IP addresses and UDP port numbers.
 String BROADCAST_IP_ADDRESS = "255.255.255.255";
 String MULTICAST_IP_ADDRESS = "224.0.0.1";
+String MY_IP_ADDRESS = "192.168.1.29";
+
 int UDP_PORT = 23;
 
  /*
@@ -52,33 +54,25 @@ UDP udp;  // the UDP object
  * init the frame and the UDP object.
  */
 void setup() {
-
-  // to simplify the program, we use a byte[] array to pass the previous and
-  // the current mouse coordinates. The PApplet size must be defined with 
-  // values <=255
+// Setup Broadcast by setting up multicast????
   size( 255, 255 );
-  background( 128 );  // gray backround
-
-// We can't seam to make a broadcast connection so we will setup a multicast.   
-// create a broadcast connection on port 23 = UDP_PORT
-  //From Wikipedia: A special definition exists for the IP broadcast address 255.255.255.255. 
-  //It is the broadcast address of the zero network or 0.0.0.0, which in Internet Protocol standards stands for this network,
-  // i.e. the local network. Transmission to this address is limited by definition, in that it is never forwarded
-  // by the routers connecting the local network to other networks.
+  background( 32 );  // dark gray backround
   
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.broadcast(true);
+  udp.log(true);  //Wonder what?
 
   // Setup listen and wait constantly for incomming data
   udp.listen( true );
+  println("We are listening");
 
   // Turn on broadcast
   udp.broadcast(true);
   // ... well, just verifies if it's really a multicast socket and blablabla
   println( "init as Multicast socket ... " + udp.isMulticast() );
-  println( "init as Broadcast socket ... " + udp.isBroadcast() );
+//  println( "init as Broadcast socket ... " + udp.isBroadcast() );
   println( "UDP joins a group  ... "+udp.isJoined() );
-  println( "UDP Broadcast on?  ... " + udp.broadcast(true) );
+//  println( "UDP Broadcast on?  ... " + udp.broadcast(true) );
   
 }
 
@@ -88,32 +82,15 @@ void draw() {
 
 
 /**
- * on mouse move : 
- * send the mouse positions over the network on UDP broad cast.
- */
-
-void mouseMoved() {
-
-  byte[] data = new byte[4];	// the data to be send
-  // add the mouse positions
-  data[0] = byte(mouseX);
-  data[1] = byte(mouseY);
-  data[2] = byte(pmouseX);
-  data[3] = byte(pmouseY);
-//  udp.send( data, BROADCAST_IP_ADDRESS, UDP_PORT  ); // = send( data, group_ip, port );
-} // mouseMoved
-
-/**
  * on mouse click : 
  * send the TI UDP data on mouse click.
- */
- 
+ */ 
 void mouseClicked() {
   println ("Moused clicked");
 
  // Tivia Locator UDP string creation.
  // This works with the full Launchpad conditional test   
-  byte[] bdata = new byte[4];
+  byte[] bdata = new byte[255];
   bdata[0] = TAG_CMD;
   bdata[1] = byte(0x04);
   bdata[2] = CMD_DISCOVER_TARGET;
@@ -132,10 +109,21 @@ void mouseClicked() {
  * message.
  */
 void receive( byte[] data ) {
+  print("Received data: ");
 //  String theAddress = udp.address ( );
 //  println("The address" + theAddress);
   println("Received data:" + data);
 
+// Write to the drawing window
+  textSize(32);
+  text("Got:  ", 0,20);
+  for (int i =0; i< 255; i++){
+    text(char(data[i]), i*32,41);
+    print(hex(data[i]));
+  }
+  println(" ");
+  
+  
   byte mydata[] = data;
   int mydatalength = udp.getBuffer();
  // println("Data Received!");
