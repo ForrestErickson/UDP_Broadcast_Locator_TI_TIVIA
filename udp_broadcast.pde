@@ -1,25 +1,26 @@
 /**
- * udp_broadcast. Created by modifying the multicast example.
+ * udp_broadcast. Created by modifying the Proccessing udp_multicast example.
  *Lee Erickson
  * Date: 20180527
- * trying to broad cast to a TIVI Launchpad device
+ * Trying to broad cast to a TIVI Launchpad device
  * The TIVA device UDP port apears to be on 23. 
- * The ti file locator.c defines 
- // These defines are used to describe the device locator protocol.
- //
- //*****************************************************************************
+ * The ti file locator.c defines a sequence of four bytes it wants to receive. 
+ * These defines are used to describe the device locator protocol.
+ #define TAG_CMD                 0xff
+ #define TAG_STATUS              0xfe
+ #define CMD_DISCOVER_TARGET     0x02
  */
 
-// #define TAG_CMD                 0xff
-// #define TAG_STATUS              0xfe
-// #define CMD_DISCOVER_TARGET     0x02
-
+// TAG_CHECK_BYTE formula as per locator.c in LocatorReceive function.
 byte TAG_CMD = byte(0xFF);
 byte TAG_STATUS = byte(0xFE);
 byte CMD_DISCOVER_TARGET = byte(0x02);
+byte TAG_CHECK_BYTE = byte((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff);
 
+// IP addresses and UDP port numbers.
 String BROADCAST_IP_ADDRESS = "255.255.255.255";
 String MULTICAST_IP_ADDRESS = "224.0.0.1";
+int UDP_PORT = 23;
 
  /*
  //for the UDP payload .
@@ -71,7 +72,7 @@ void setup() {
   // Setup listen and wait constantly for incomming data
   udp.listen( true );
 
-  // Turn on broad cast
+  // Turn on broadcast
   udp.broadcast(true);
   // ... well, just verifies if it's really a multicast socket and blablabla
   println( "init as Multicast socket ... " + udp.isMulticast() );
@@ -153,28 +154,17 @@ String myString ="";
  
 void mouseClicked() {
   println ("Moused clicked");
-//  return;
-//byte TAG_CMD = byte(0xFF);
-//byte TAG_STATUS = byte(0xFE);
-//byte CMD_DISCOVER_TARGET = byte(0x02);
 
-
-   // Tivia Locator UDP string
-   // This works, but I had to break the Launchpad conditional test 
-   // for  (pui8Data[3] != ((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff)
-   // So I assume my calculation of bdata[3] as 0xff below is incorrect.
-   
+ // Tivia Locator UDP string creation.
+ // This works with the full Launchpad conditional test   
   byte[] bdata = new byte[4];
-  //bdata[0] = {0xff, 0x04, 0x02, 0xff};
-//  bdata[0] = byte(0xff);
   bdata[0] = TAG_CMD;
   bdata[1] = byte(0x04);
   bdata[2] = CMD_DISCOVER_TARGET;
-  bdata[3] = byte(0xff);
+  bdata[3] = byte(TAG_CHECK_BYTE);
 
   //String sLocator
   String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
-  //println( "check sLocator string ASCII as ..." + sLocator.getBytes() );
   println( "Sending TI Locator Broadcast" );
   udp.send( bdata, BROADCAST_IP_ADDRESS, 23 ); // = send( data, group_ip, port );
 }
