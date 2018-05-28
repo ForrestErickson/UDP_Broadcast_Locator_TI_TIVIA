@@ -85,41 +85,12 @@ void mouseClicked() {
   udp.send( bdata, BROADCAST_IP_ADDRESS, UDP_PORT ); // = send( data, group_ip, port );
 } // mouseClicked
 
-/**
- * This is the program receive handler. To perform any action on datagram 
- * reception, you need to implement this method in your code. She will be 
- * automatically called by the UDP object each time he receive a nonnull 
- * message.
- */
-
-/* 
-void receive( byte[] data ) {
-//  String theAddress = udp.address ( );
-//  println("The address" + theAddress);
-  print("Received data: ");
-
-// Write to the drawing window
-  textSize(32);
-  text("Got:  ", 0,20);
-  for (int i =0; i< 255; i++){
-    text(hex(data[i]), i*32,41);
-    print(hex(data[i]));
-  }
-  println(" ");
-    
-  byte mydata[] = data;
-  int mydatalength = udp.getBuffer();
-  println("Data buffer length: " + mydatalength);
-
-} // received
-*/
-
  
-//  void myCustomReceiveHandler(byte[] message, String ip, int port
-//void myCustomReceiveHandler( byte[] data, MY_IP_ADDRESS,UDP_PORT ) {
+// Custom receiver handler to get data from the client which responded to the broadcast.
+
   void myCustomReceiveHandler( byte[] data, String ip, int port ) {
 //  String theAddress = udp.address ( );
-  println("The address " + ip + " and port: " + port);
+  println("The source address is: " + ip + " and port: " + port);
   print("myReceived data: ");
 
 // Write to the drawing window
@@ -131,10 +102,31 @@ void receive( byte[] data ) {
     print(hex(data[i]));
   }
   println(" ");
-    
-  byte mydata[] = data;
-  int mydatalength = udp.getBuffer();
-  println("Data buffer length: " + mydatalength);
+
+  if (data.length >4) {
+    print("We got some big data here boys and girls.");
+
+    // Lets parse out some data!
+    print("Here is your big mac: ");
+    for (int i = 9; i<=14; i++){
+       print(hex(data[i]));
+    }  
+  
+    print("\nWhat is your name? (What is your quest?): ");
+    for (int i = 19; (i<64 && data[i]!=0) ; i++){
+       print(char(data[i])); 
+    }// parsing.
+
+  }//If data > 4
+
+
+/*
+// Lets parse out some data!
+print("Here is your big mac: ");
+for (int i = 9; i<14; i++){
+   print(hex(data[i]));  
+} parcing.
+*/
 
 } //  myCustomReceiveHandler(byte[] message, String ip, int port) 
  
