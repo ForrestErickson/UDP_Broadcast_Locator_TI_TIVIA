@@ -94,18 +94,12 @@ void draw() {
 void mouseMoved() {
 
   byte[] data = new byte[4];	// the data to be send
-
   // add the mouse positions
   data[0] = byte(mouseX);
   data[1] = byte(mouseY);
   data[2] = byte(pmouseX);
   data[3] = byte(pmouseY);
-
-  // by default if the ip address and the port number are not specified, UDP 
-  // send the message to the joined group address and the current socket port.
-//  udp.send( data ); // = send( data, group_ip, port );
-  udp.send( data, BROADCAST_IP_ADDRESS, 23  ); // = send( data, group_ip, port );
-
+//  udp.send( data, BROADCAST_IP_ADDRESS, 23  ); // = send( data, group_ip, port );
 } // mouseMoved
 
 
@@ -116,12 +110,30 @@ void mouseMoved() {
  * message.
  */
 void receive( byte[] data ) {
+//  String theAddress = udp.address ( );
+//  println("The address" + theAddress);
+  println("Received data:" + data);
+
+  byte mydata[] = data;
+  int mydatalength = udp.getBuffer();
+ // println("Data Received!");
+ // println("Data Received length is: !" + str(mydatalength));
 
   // retrieve the mouse coordonates
   int x  = int( data[0] );
   int y  = int( data[1] );
   int px = int( data[2] );
   int py = int( data[3] );
+
+
+/*
+String myString ="";
+  for (int i=0 ; i<data.length(); i++)
+  {
+    myString[i] = data[i];
+  }
+  println("My string" + myString);
+*/  
 
   // slowly, clears the previous lines
   noStroke();
