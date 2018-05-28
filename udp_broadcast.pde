@@ -21,29 +21,8 @@ byte TAG_CHECK_BYTE = byte((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff);
 String BROADCAST_IP_ADDRESS = "255.255.255.255";
 String MULTICAST_IP_ADDRESS = "224.0.0.1";
 String MY_IP_ADDRESS = "192.168.1.29";
-
 int UDP_PORT = 23;
 
- /*
- //for the UDP payload .
- * (./) udp_multicast.pde - how to use UDP library as multicast connection
- * (cc) 2006, Cousot stephane for The Atelier Hypermedia
- * (->) http://hypermedia.loeil.org/processing/
- *
- * Pass the mouse coordinates over the network to draw an "multi-user picture".
- *
- * --
- *
- * about multicasting:
- * The only difference between unicast/broadcast and multicast address is that 
- * all interfaces identified by that address receive the same data. Multicasting
- * provide additional options in the UDP object (see the documentation for 
- * more informations), but the usage is commonly the same: simply add the 
- * multicast group address in his initialization to reflect a multicast 
- * connection.
- *
- * (note: currently applets are not allowed to use multicast sockets)
- */
 
 // import UDP library
 import hypermedia.net.*;
@@ -59,7 +38,7 @@ void setup() {
   background( 32 );  // dark gray backround
   
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
-  udp.broadcast(true);
+  udp.loopback(false);  // Suppress our own broadcast.
   udp.log(true);  //Wonder what?
 
   // Setup listen and wait constantly for incomming data
@@ -109,50 +88,23 @@ void mouseClicked() {
  * message.
  */
 void receive( byte[] data ) {
-  print("Received data: ");
 //  String theAddress = udp.address ( );
 //  println("The address" + theAddress);
-  println("Received data:" + data);
+  print("Received data: ");
 
 // Write to the drawing window
   textSize(32);
   text("Got:  ", 0,20);
   for (int i =0; i< 255; i++){
-    text(char(data[i]), i*32,41);
+    text(hex(data[i]), i*32,41);
     print(hex(data[i]));
   }
   println(" ");
-  
-  
+    
   byte mydata[] = data;
   int mydatalength = udp.getBuffer();
- // println("Data Received!");
- // println("Data Received length is: !" + str(mydatalength));
+  println("Data buffer length: " + mydatalength);
 
-  // retrieve the mouse coordonates
-  int x  = int( data[0] );
-  int y  = int( data[1] );
-  int px = int( data[2] );
-  int py = int( data[3] );
-
-
-/*
-String myString ="";
-  for (int i=0 ; i<data.length(); i++)
-  {
-    myString[i] = data[i];
-  }
-  println("My string" + myString);
-*/  
-
-  // slowly, clears the previous lines
-  noStroke();
-  fill( 0, 0, 0, 7 );
-  rect( 0, 0, width, height);
-
-  // and draw a single line with the given mouse positions
-  stroke( 255 );
-  line( x, y, px, py );
 } // received
 
 
