@@ -160,6 +160,10 @@ void mouseClicked() {
 
 
    // Tivia Locator UDP string
+   // This works, but I had to break the Launchpad conditional test 
+   // for  (pui8Data[3] != ((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff)
+   // So I assume my calculation of bdata[3] as 0xff below is incorrect.
+   
   byte[] bdata = new byte[4];
   //bdata[0] = {0xff, 0x04, 0x02, 0xff};
 //  bdata[0] = byte(0xff);
