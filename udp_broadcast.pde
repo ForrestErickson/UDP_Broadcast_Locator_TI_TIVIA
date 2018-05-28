@@ -18,9 +18,11 @@ byte TAG_CMD = byte(0xFF);
 byte TAG_STATUS = byte(0xFE);
 byte CMD_DISCOVER_TARGET = byte(0x02);
 
+String BROADCAST_IP_ADDRESS = "255.255.255.255";
+String MULTICAST_IP_ADDRESS = "224.0.0.1";
+
  /*
  //for the UDP payload .
- 
  * (./) udp_multicast.pde - how to use UDP library as multicast connection
  * (cc) 2006, Cousot stephane for The Atelier Hypermedia
  * (->) http://hypermedia.loeil.org/processing/
@@ -55,24 +57,16 @@ void setup() {
   // values <=255
   size( 255, 255 );
   background( 128 );  // gray backround
-  
+
+// We can't seam to make a broadcast connection so we will setup a multicast.   
 // create a broadcast connection on port 23
   //From Wikipedia: A special definition exists for the IP broadcast address 255.255.255.255. 
   //It is the broadcast address of the zero network or 0.0.0.0, which in Internet Protocol standards stands for this network,
   // i.e. the local network. Transmission to this address is limited by definition, in that it is never forwarded
   // by the routers connecting the local network to other networks.
-
-//  udp = new UDP( this, 23, "255.255.255.255" );
-
-//  udp = new UDP( this, 23, "255.255.255.255" );
   
-  udp = new UDP( this, 23, "224.0.0.1" );
+  udp = new UDP( this, 23, MULTICAST_IP_ADDRESS );
   udp.broadcast(true);
-  
-//  udp = new UDP( this, 23 ); // implicit ip address???
-//  udp = new UDP( this, "255.255.255.255", 23 ); // implicit ip address???
-  
-
 
   // Setup listen and wait constantly for incomming data
   udp.listen( true );
@@ -94,9 +88,9 @@ void draw() {
 
 /**
  * on mouse move : 
- * send the mouse positions over the network
+ * send the mouse positions over the network on UDP broad cast.
  */
-/*
+
 void mouseMoved() {
 
   byte[] data = new byte[4];	// the data to be send
@@ -109,13 +103,11 @@ void mouseMoved() {
 
   // by default if the ip address and the port number are not specified, UDP 
   // send the message to the joined group address and the current socket port.
-  udp.send( data ); // = send( data, group_ip, port );
-  //println( "send mouse data as sLocator " + data.toCharArray() ); 
+//  udp.send( data ); // = send( data, group_ip, port );
+  udp.send( data, BROADCAST_IP_ADDRESS, 23  ); // = send( data, group_ip, port );
 
-  // note: by creating a multicast program, you can also send a message to a
-  // specific address (i.e. send( "the messsage", "192.168.0.2", 7010 ); )
 } // mouseMoved
-/*
+
 
 /**
  * This is the program receive handler. To perform any action on datagram 
@@ -166,19 +158,9 @@ void mouseClicked() {
 
   //String sLocator
   String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
-  println( "check sLocator string as ..." + sLocator );
-  println( "check sLocator string ASCII as ..." + sLocator.getBytes() );
-
-  // by default if the ip address and the port number are not specified, UDP 
-  // send the message to the joined group address and the current socket port.
-
-//  udp.send( bdata ); // = send( data, group_ip, port );
-
-  udp.send( bdata, "255.255.255.255", 23 ); // = send( data, group_ip, port );
-  //println( "send mouse data as sLocator " + data.toCharArray() ); 
-
-  // note: by creating a multicast program, you can also send a message to a
-  // specific address (i.e. send( "the messsage", "192.168.0.2", 7010 ); )
+  //println( "check sLocator string ASCII as ..." + sLocator.getBytes() );
+  println( "Sending TI Locator Broadcast" );
+  udp.send( bdata, BROADCAST_IP_ADDRESS, 23 ); // = send( data, group_ip, port );
 }
 
 
