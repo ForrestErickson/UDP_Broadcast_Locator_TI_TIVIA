@@ -23,7 +23,6 @@ String MULTICAST_IP_ADDRESS = "224.0.0.1";
 String MY_IP_ADDRESS = "192.168.1.29";
 int UDP_PORT = 23;
 
-
 // import UDP library
 import hypermedia.net.*;
 
@@ -87,22 +86,25 @@ void mouseClicked() {
 
  
 // Custom receiver handler to get data from the client which responded to the broadcast.
-
-  void myCustomReceiveHandler( byte[] data, String ip, int port ) {
-//  String theAddress = udp.address ( );
-  println("The source address is: " + ip + " and port: " + port);
-  print("myReceived data: ");
+void myCustomReceiveHandler( byte[] data, String ip, int port ) {
+  String removeMAC = "";
+  String remoteAppTitle = "";
+  String remoteIPaddress = ip;
+  byte tempdata[] = new byte[255]; 
 
 // Write to the drawing window
   textSize(32);
   text("Got:  ", 0,20);
-//  for (int i =0; i< 255; i++){
   for (int i =0; i< data.length ; i++){
     text(hex(data[i]), i*32,41);
     print(hex(data[i]));
   }
+// Write to console.    
+  println("The source address is: " + ip + " and port: " + port);
+  print("myReceived data: ");
   println(" ");
 
+//The broadcast to find the Locator is 4 byets so lets ignore them. 
   if (data.length >4) {
     print("We got some big data here boys and girls.");
 
@@ -114,20 +116,16 @@ void mouseClicked() {
   
     print("\nWhat is your name? (What is your quest?): ");
     for (int i = 19; (i<64 && data[i]!=0) ; i++){
-       print(char(data[i])); 
+       print(char(data[i]));
+       tempdata[i-19] = data[i];      
+
     }// parsing.
+//    String str2 = new String(tempdata);
+    String str2 = new String(data,19,63);
+    println("\nOur str2 is: " +str2);
 
   }//If data > 4
 
-
-/*
-// Lets parse out some data!
-print("Here is your big mac: ");
-for (int i = 9; i<14; i++){
-   print(hex(data[i]));  
-} parcing.
-*/
-
 } //  myCustomReceiveHandler(byte[] message, String ip, int port) 
  
-
+//End.
