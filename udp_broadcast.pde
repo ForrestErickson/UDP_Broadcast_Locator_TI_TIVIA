@@ -57,7 +57,8 @@ void setup() {
   // the current mouse coordinates. The PApplet size must be defined with 
   // values <=255
   size( 255, 255 );
-  background( 128 );  // gray backround
+  //background( 128 );  // gray backround
+  background( 32 );  // dark gray backround
 
 // We can't seam to make a broadcast connection so we will setup a multicast.   
 // create a broadcast connection on port 23 = UDP_PORT
@@ -113,7 +114,7 @@ void mouseClicked() {
 
  // Tivia Locator UDP string creation.
  // This works with the full Launchpad conditional test   
-  byte[] bdata = new byte[4];
+  byte[] bdata = new byte[255];
   bdata[0] = TAG_CMD;
   bdata[1] = byte(0x04);
   bdata[2] = CMD_DISCOVER_TARGET;
@@ -132,21 +133,10 @@ void mouseClicked() {
  * message.
  */
 void receive( byte[] data ) {
-//  String theAddress = udp.address ( );
-//  println("The address" + theAddress);
   println("Received data:" + data);
 
   byte mydata[] = data;
   int mydatalength = udp.getBuffer();
- // println("Data Received!");
- // println("Data Received length is: !" + str(mydatalength));
-
-  // retrieve the mouse coordonates
-  int x  = int( data[0] );
-  int y  = int( data[1] );
-  int px = int( data[2] );
-  int py = int( data[3] );
-
 
 /*
 String myString ="";
@@ -157,15 +147,25 @@ String myString ="";
   println("My string" + myString);
 */  
 
+/*
   // slowly, clears the previous lines
   noStroke();
   fill( 0, 0, 0, 7 );
   rect( 0, 0, width, height);
-
   // and draw a single line with the given mouse positions
   stroke( 255 );
   line( x, y, px, py );
+*/
+//Write some text to the drawing window.
+  textSize(32);
+  
+  text("Got: ", 0,20);
+  for (int i=0; i<255; i++)
+  {
+  text(char(data[i]), i*32 ,41);  
+  print(hex(data[i]));
+  }
+  
+  
+
 } // received
-
-
-
