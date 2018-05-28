@@ -20,6 +20,7 @@ byte TAG_CHECK_BYTE = byte((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff);
 // IP addresses and UDP port numbers.
 String BROADCAST_IP_ADDRESS = "255.255.255.255";
 String MULTICAST_IP_ADDRESS = "224.0.0.1";
+String MY_IP_ADDRESS = "192.168.1.29";
 int UDP_PORT = 23;
 
  /*
@@ -52,26 +53,24 @@ UDP udp;  // the UDP object
  * init the frame and the UDP object.
  */
 void setup() {
-
-  // to simplify the program, we use a byte[] array to pass the previous and
-  // the current mouse coordinates. The PApplet size must be defined with 
-  // values <=255
   size( 255, 255 );
   //background( 128 );  // gray backround
   background( 32 );  // dark gray backround
 
-// We can't seam to make a broadcast connection so we will setup a multicast.   
-// create a broadcast connection on port 23 = UDP_PORT
-  //From Wikipedia: A special definition exists for the IP broadcast address 255.255.255.255. 
-  //It is the broadcast address of the zero network or 0.0.0.0, which in Internet Protocol standards stands for this network,
-  // i.e. the local network. Transmission to this address is limited by definition, in that it is never forwarded
-  // by the routers connecting the local network to other networks.
-  
+// Setup Broadcast by setting up multicast ????
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
+  udp.log(true);  //Wonder what?
   udp.broadcast(true);
 
   // Setup listen and wait constantly for incomming data
   udp.listen( true );
+  
+  if(udp.isListening()) {
+    println("We are listening");
+  }
+  
+//  udp.setReceiveHandler(myCustomReceiveHandler());
+//  udp.setReceiveHandler(name);
 
   // Turn on broadcast
   udp.broadcast(true);
@@ -79,7 +78,11 @@ void setup() {
   println( "init as Multicast socket ... " + udp.isMulticast() );
   println( "init as Broadcast socket ... " + udp.isBroadcast() );
   println( "UDP joins a group  ... "+udp.isJoined() );
-  println( "UDP Broadcast on?  ... " + udp.broadcast(true) );
+//  println( "UDP Broadcast on?  ... " + udp.broadcast() );
+  
+// Get local IP address
+//  String myIPaddress = udp.address();
+//  println("My IP address is: " + myIPaddress);
   
 }
 
@@ -133,39 +136,33 @@ void mouseClicked() {
  * message.
  */
 void receive( byte[] data ) {
-  println("Received data:" + data);
+  print("Received data: ");
+//  byte mydata[] = data;
+//  int mydatalength = udp.getBuffer();
 
-  byte mydata[] = data;
-  int mydatalength = udp.getBuffer();
-
-/*
-String myString ="";
-  for (int i=0 ; i<data.length(); i++)
-  {
-    myString[i] = data[i];
-  }
-  println("My string" + myString);
-*/  
-
-/*
-  // slowly, clears the previous lines
-  noStroke();
-  fill( 0, 0, 0, 7 );
-  rect( 0, 0, width, height);
-  // and draw a single line with the given mouse positions
-  stroke( 255 );
-  line( x, y, px, py );
-*/
 //Write some text to the drawing window.
-  textSize(32);
-  
+  textSize(32);  
   text("Got: ", 0,20);
   for (int i=0; i<255; i++)
   {
   text(char(data[i]), i*32 ,41);  
   print(hex(data[i]));
   }
-  
-  
-
+  println(" ");
 } // received
+
+/*
+//From the UDP library
+//   void myCustomReceiveHandler(byte[] message, String ip, int port) {
+//   void myCustomReceiveHandler(byte[] data[], MY_IP_ADDRESS, UDP_PORT) {
+   void myCustomReceiveHandler(data[], MY_IP_ADDRESS, UDP_PORT) {
+  // do something here...
+    textSize(32);  
+  text("Got: ", 0,20);
+  for (int i=0; i<255; i++)
+  {
+  text(char(data[i]), i*32 ,41);  
+  print(hex(data[i]));
+ }// myCustomReceiveHandler
+*/
+
