@@ -1,14 +1,22 @@
 /**
  * udp_broadcast. Created by modifying the Proccessing udp_multicast example.
- *Lee Erickson
+ * Library at: http://ubaa.net/shared/processing/udp/index.htm
+ * This program by Lee Erickson
  * Date: 20180527
- * Trying to broad cast to a TIVI Launchpad device
+ * I hearby release this to the public for any use. It has no warranty. It may kill you but is not guarenteed to do so.
+ *
+ * I wrote this to work with the locator function in TIVI ware for TI TM4C1294XL Launchpad.
+ * Use UDP broad cast to a TIVI Launchpad device and receive by unicast back to my windoes computer.
  * The TIVA device UDP port apears to be on 23. 
  * The ti file locator.c defines a sequence of four bytes it wants to receive. 
  * These defines are used to describe the device locator protocol.
  #define TAG_CMD                 0xff
  #define TAG_STATUS              0xfe
  #define CMD_DISCOVER_TARGET     0x02
+ 
+ * also a second unnamed byte of value 0x40 and a ?check sum? of "(0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff)"
+ *
+ * This software is a client to request from the Locator server on the TI devices their location information.
  */
 
 // TAG_CHECK_BYTE formula as per locator.c in LocatorReceive function.
@@ -20,7 +28,7 @@ byte TAG_CHECK_BYTE = byte((0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff);
 // IP addresses and UDP port numbers.
 String BROADCAST_IP_ADDRESS = "255.255.255.255";
 String MULTICAST_IP_ADDRESS = "224.0.0.1";
-String MY_IP_ADDRESS = "192.168.1.29";
+//String MY_IP_ADDRESS = "192.168.1.29";
 int UDP_PORT = 23;
 
 // import UDP library
@@ -39,22 +47,17 @@ void setup() {
   
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.loopback(false);  // Suppress our own broadcast.
-  udp.log(true);  //This will show the UDP trafic out and into the PC running this software.
+//  udp.log(true);  //This will show the UDP trafic out and into the PC running this software. Uncomment this to see network trafic.
 
-//  udp.setReceiveHandler(this.myCustomReceiveHandler);
+// Setup listen and wait constantly for incomming data
   udp.setReceiveHandler("myCustomReceiveHandler");
-
-  // Setup listen and wait constantly for incomming data
-  udp.listen( true );
+  udp.listen( true ); 
   println("We are listening");
 
   // Turn on broadcast
   udp.broadcast(true);
-  // ... well, just verifies if it's really a multicast socket and blablabla
   println( "init as Multicast socket ... " + udp.isMulticast() );
-//  println( "init as Broadcast socket ... " + udp.isBroadcast() );
   println( "UDP joins a group  ... "+udp.isJoined() );
-//  println( "UDP Broadcast on?  ... " + udp.broadcast(true) );
   println("Click mouse in window to send broadcast and locate devices.");
   
 }
@@ -71,8 +74,8 @@ void draw() {
 void mouseClicked() {
   println ("Moused clicked.\n");
 
- // Tivia Locator UDP string creation.
- // This works with the full Launchpad conditional test   
+ // Tivia Locator UDP data sequence creation.
+ // This works with the full Ti Launchpad Locator conditional test.   
   byte[] bdata = new byte[4];
   bdata[0] = TAG_CMD;
   bdata[1] = byte(0x04);
@@ -105,14 +108,12 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
   if (data.length >4) {
   // Write to console. 
     println("\n\nNew Device Located! ");
-    println("The device address is: " + ip + " and port: " + port);
-    //print("myReceived data: ");
-    //println(" ");
-
-    print("Hungry for devices boys and girls? ");
+    println("The device address is: " + ip + " and port: " + port);  //Read out from the address that called the handler.
+    
 
     // Lets parse out some data!
-    print("Here is your big mac: ");
+    print("Hungry for devices boys and girls? ");
+    print("Here is your big MAC: ");
     for (int i = 9; i<=14; i++){
        print(hex(data[i]));
     }  
@@ -124,7 +125,7 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
        tempdata[i-19] = data[i];      
 
     }// parsing.
-//    String str2 = new String(tempdata);
+//    Lets make this data into a string.
     String str2 = new String(data,19,63);
     println("\nAs a string: " +str2);
 
