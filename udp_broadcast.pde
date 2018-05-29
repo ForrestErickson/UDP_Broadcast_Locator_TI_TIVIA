@@ -17,6 +17,7 @@
  * also a second unnamed byte of value 0x40 and a ?check sum? of "(0 - TAG_CMD - 4 - CMD_DISCOVER_TARGET) & 0xff)"
  *
  * This software is a client to request from the Locator server on the TI devices their location information.
+ * If you watch with Wireshark set to filer for udp.port==23 you can see the trafic nicly.
  */
 
 // TAG_CHECK_BYTE formula as per locator.c in LocatorReceive function.
@@ -44,23 +45,26 @@ void setup() {
 // Setup Broadcast by setting up multicast????
   size( 255, 255 );
   background( 32 );  // dark gray backround
+  // Write to the drawing window
+  textSize(24);
+  text(" Click to Broadcast", 0,128); 
+
   
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.loopback(false);  // Suppress our own broadcast.
 //  udp.log(true);  //This will show the UDP trafic out and into the PC running this software. Uncomment this to see network trafic.
 
-// Setup listen and wait constantly for incomming data
+  // Setup listen and wait constantly for incomming data
   udp.setReceiveHandler("myCustomReceiveHandler");
   udp.listen( true ); 
-  println("We are listening");
+  println("Broadcast to find devices with the TI TIVA Locator Service.");
 
   // Turn on broadcast
   udp.broadcast(true);
   println( "init as Multicast socket ... " + udp.isMulticast() );
   println( "UDP joins a group  ... "+udp.isJoined() );
   println("Click mouse in window to send broadcast and locate devices.");
-  
-}
+} // setup
 
 // process events
 void draw() {
@@ -68,8 +72,7 @@ void draw() {
 
 
 /**
- * on mouse click : 
- * send the TI UDP data on mouse click.
+ * send the UDP Broadcast data on mouse click.
  */ 
 void mouseClicked() {
   println ("Moused clicked.\n");
@@ -84,7 +87,7 @@ void mouseClicked() {
 
   //String sLocator
   String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
-  println( "Sending TI Locator Broadcast. " );
+  println( "Sending TI Locator Broadcast." );
   udp.send( bdata, BROADCAST_IP_ADDRESS, UDP_PORT ); // = send( data, group_ip, port );
 } // mouseClicked
 
@@ -96,12 +99,10 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
   String remoteIPaddress = ip;
   byte tempdata[] = new byte[255]; 
 
-// Write to the drawing window
-  textSize(32);
-  text("Got:  ", 0,20);
+// Write to the drawing window 
   for (int i =0; i< data.length ; i++){
-    text(hex(data[i]), i*32,41);
-    print(hex(data[i]));
+    text(hex(data[i]), i*32,41);  
+//    print(hex(data[i]));    // To console too.
   }
 
 //The broadcast to find the Locator is 4 byets so lets ignore them. 
@@ -110,27 +111,31 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
     println("\n\nNew Device Located! ");
     println("The device address is: " + ip + " and port: " + port);  //Read out from the address that called the handler.
     
-
     // Lets parse out some data!
     print("Hungry for devices boys and girls? ");
     print("Here is your big MAC: ");
-    for (int i = 9; i<=14; i++){
+    int OFFSET_TO_MAC = 9;
+    int LENGTH_MAC = 14;
+    for (int i = OFFSET_TO_MAC; i<=LENGTH_MAC; i++){
        print(hex(data[i]));
     }  
   
     print("\nWhat is your name? (What is your quest?): ");
     //Parse out the "AppTitleSet" locator service field. 
-    for (int i = 19; (i<64 && data[i]!=0) ; i++){
+    int OFFSET_TO_AppTitle = 19;
+    int LENGTH_AppTitle = 64;
+    
+    for (int i = OFFSET_TO_AppTitle; (i<LENGTH_AppTitle && data[i]!=0) ; i++){
        print(char(data[i]));
-       tempdata[i-19] = data[i];      
+       tempdata[i-OFFSET_TO_AppTitle] = data[i];      
 
     }// parsing.
 //    Lets make this data into a string.
-    String str2 = new String(data,19,63);
+    String str2 = new String(data,OFFSET_TO_AppTitle,LENGTH_AppTitle-1);
     println("\nAs a string: " +str2);
 
   }//If data > 4
 
 } //  myCustomReceiveHandler(byte[] message, String ip, int port) 
  
-//End.
+//udp_broadcast end.
