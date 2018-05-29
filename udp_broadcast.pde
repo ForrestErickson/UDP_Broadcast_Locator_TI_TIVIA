@@ -99,12 +99,6 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
   String remoteIPaddress = ip;
   byte tempdata[] = new byte[255]; 
 
-// Write to the drawing window 
-  for (int i =0; i< data.length ; i++){
-    text(hex(data[i]), i*32,41);  
-//    print(hex(data[i]));    // To console too.
-  }
-
 //The broadcast to find the Locator is 4 byets so lets ignore them. 
   if (data.length >4) {
   // Write to console. 
