@@ -39,7 +39,7 @@ void setup() {
   
   udp = new UDP( this, UDP_PORT, MULTICAST_IP_ADDRESS );
   udp.loopback(false);  // Suppress our own broadcast.
-  udp.log(true);  //Wonder what?
+  udp.log(true);  //This will show the UDP trafic out and into the PC running this software.
 
 //  udp.setReceiveHandler(this.myCustomReceiveHandler);
   udp.setReceiveHandler("myCustomReceiveHandler");
@@ -55,6 +55,7 @@ void setup() {
 //  println( "init as Broadcast socket ... " + udp.isBroadcast() );
   println( "UDP joins a group  ... "+udp.isJoined() );
 //  println( "UDP Broadcast on?  ... " + udp.broadcast(true) );
+  println("Click mouse in window to send broadcast and locate devices.");
   
 }
 
@@ -68,7 +69,7 @@ void draw() {
  * send the TI UDP data on mouse click.
  */ 
 void mouseClicked() {
-  println ("Moused clicked");
+  println ("Moused clicked.\n");
 
  // Tivia Locator UDP string creation.
  // This works with the full Launchpad conditional test   
@@ -80,7 +81,7 @@ void mouseClicked() {
 
   //String sLocator
   String sLocator = str(bdata[0] + bdata[1] + bdata[2] + bdata[3]);
-  println( "Sending TI Locator Broadcast" );
+  println( "Sending TI Locator Broadcast. " );
   udp.send( bdata, BROADCAST_IP_ADDRESS, UDP_PORT ); // = send( data, group_ip, port );
 } // mouseClicked
 
@@ -99,14 +100,16 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
     text(hex(data[i]), i*32,41);
     print(hex(data[i]));
   }
-// Write to console.    
-  println("The source address is: " + ip + " and port: " + port);
-  print("myReceived data: ");
-  println(" ");
 
 //The broadcast to find the Locator is 4 byets so lets ignore them. 
   if (data.length >4) {
-    print("We got some big data here boys and girls.");
+  // Write to console. 
+    println("\n\nNew Device Located! ");
+    println("The device address is: " + ip + " and port: " + port);
+    //print("myReceived data: ");
+    //println(" ");
+
+    print("Hungry for devices boys and girls? ");
 
     // Lets parse out some data!
     print("Here is your big mac: ");
@@ -115,6 +118,7 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
     }  
   
     print("\nWhat is your name? (What is your quest?): ");
+    //Parse out the "AppTitleSet" locator service field. 
     for (int i = 19; (i<64 && data[i]!=0) ; i++){
        print(char(data[i]));
        tempdata[i-19] = data[i];      
@@ -122,7 +126,7 @@ void myCustomReceiveHandler( byte[] data, String ip, int port ) {
     }// parsing.
 //    String str2 = new String(tempdata);
     String str2 = new String(data,19,63);
-    println("\nOur str2 is: " +str2);
+    println("\nAs a string: " +str2);
 
   }//If data > 4
 
